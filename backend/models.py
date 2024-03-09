@@ -4,7 +4,7 @@ from uuid import uuid4
 db = SQLAlchemy()
 
 def get_uuid():
-    return uuid4.hex
+    return str(uuid4())
 
 class User(db.Model):
     __tablename__ = "users"
