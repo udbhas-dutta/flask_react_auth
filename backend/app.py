@@ -1,13 +1,16 @@
 from flask import Flask, request, jsonify, session
 from flask_bcrypt import Bcrypt
+from flask_cors import CORS, cross_origin
 from config import ApplicationConfig
 from flask_session import Session
 from models import db, User
+
 
 app = Flask(__name__)
 app.config.from_object(ApplicationConfig)
 
 bcrypt = Bcrypt(app)
+cors = CORS(app, supports_credentials=True, origins='http://localhost:3000')
 server_session = Session(app)
 db.init_app(app)
 
@@ -31,6 +34,8 @@ def register_user():
     new_user = User(email=email, password=hashed_password)    
     db.session.add(new_user)
     db.session.commit()
+    
+    session["user_id"] = new_user.id
     
     return jsonify({
         "id":new_user.id,
@@ -72,6 +77,11 @@ def login_user():
         "id": user.id,
         "email": user.email
     })
+
+@app.route("/logout", methods=['POST'])
+def logout_user():
+    session.pop("user_id", None)
+    return jsonify({'message':'Successfully logged out'})
 
 
 if __name__ == "__main__":
